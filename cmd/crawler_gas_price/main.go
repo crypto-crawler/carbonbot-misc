@@ -25,12 +25,7 @@ type GasPriceMsg struct {
 	PriceUSD  float64 `json:"priceUSD"`
 }
 
-// wei to USD
-func fromWei(wei uint64, eth_price float64) float64 {
-	return float64(wei) / 1000000000000000000 * 21000 * eth_price
-}
-
-func fetch_gas_price() *GasPriceMsg {
+func fetch_gas_price(rf *utils.RollingFile) *GasPriceMsg {
 	url := "https://etherchain.org/api/gasnow"
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, _ := http.NewRequest("GET", url, nil)
@@ -42,7 +37,14 @@ func fetch_gas_price() *GasPriceMsg {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil
+	}
+	if rf != nil {
+		rf.Write(string(body) + "\n")
+	}
+
 	data, _, _, err := jsonparser.Get(body, "data")
 	if err != nil {
 		log.Println(err)
@@ -83,16 +85,13 @@ func main() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		gas_price := fetch_gas_price()
+		gas_price := fetch_gas_price(rf)
 		if gas_price != nil {
 			bytes, err := json.Marshal(gas_price)
 			if err != nil {
 				panic(err)
 			} else {
 				publisher.Publish(config.REDIS_TOPIC_ETH_GAS_PRICE, string(bytes))
-				if rf != nil {
-					rf.Write(string(bytes) + "\n")
-				}
 			}
 		}
 	}
