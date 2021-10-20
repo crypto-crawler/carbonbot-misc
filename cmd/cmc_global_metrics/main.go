@@ -14,7 +14,7 @@ import (
 	"github.com/soulmachine/coinsignal/utils"
 )
 
-func fetch_cmc_global_metrics() string {
+func fetch_cmc_global_metrics(rf *utils.RollingFile) string {
 	url := "https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest"
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, _ := http.NewRequest("GET", url, nil)
@@ -31,6 +31,9 @@ func fetch_cmc_global_metrics() string {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
+	if rf != nil {
+		rf.Write(string(body) + "\n")
+	}
 	data, _, _, _ := jsonparser.Get(body, "data")
 
 	usd, _, _, _ := jsonparser.Get(data, "quote", "USD")
@@ -74,11 +77,8 @@ func main() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		metrics := fetch_cmc_global_metrics()
+		metrics := fetch_cmc_global_metrics(rf)
 		publisher.Publish(config.REDIS_TOPIC_CMC_GLOBAL_METRICS, string(metrics))
-		if rf != nil {
-			rf.Write(string(metrics) + "\n")
-		}
 	}
 
 	rf.Close()

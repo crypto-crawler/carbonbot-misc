@@ -13,6 +13,7 @@ docker run -d --name carbonbot-misc --restart always \
   -e REDIS_URL="redis://:password@ip:6379" \
   -e FULL_NODE_URL="wss://mainnet.infura.io/ws/v3/YOUR_PROJECT_ID" \
   -e ETHERSCAN_API_KEY=YOUR_API_KEY \
+  -e CMC_API_KEY=YOUR_API_KEY \
   -u "$(id -u):$(id -g)" soulmachine/carbonbot:misc
 ```
 
