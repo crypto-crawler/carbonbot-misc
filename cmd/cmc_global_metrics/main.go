@@ -73,7 +73,7 @@ func main() {
 
 	publisher := pubsub.NewPublisher(ctx, redis_url)
 
-	ticker := time.NewTicker(15 * time.Minute) // check every 15 minutes
+	ticker := time.NewTicker(10 * time.Minute) // crawl every 10 minutes
 	defer ticker.Stop()
 
 	for range ticker.C {
