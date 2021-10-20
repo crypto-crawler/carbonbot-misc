@@ -89,7 +89,7 @@ func main() {
 			if err != nil {
 				panic(err)
 			} else {
-				publisher.Publish(config.REDIS_TOPIC_CMC_GLOBAL_METRICS, string(bytes))
+				publisher.Publish(config.REDIS_TOPIC_ETH_GAS_PRICE, string(bytes))
 				if rf != nil {
 					rf.Write(string(bytes) + "\n")
 				}
