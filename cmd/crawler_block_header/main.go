@@ -67,10 +67,9 @@ func main() {
 
 	redis_url := os.Getenv("REDIS_URL")
 	if len(redis_url) == 0 {
-		log.Println("The REDIS_URL environment variable is empty")
-	} else {
-		utils.WaitRedis(ctx, redis_url)
+		log.Fatal("The REDIS_URL environment variable is empty")
 	}
+	utils.WaitRedis(ctx, redis_url)
 	rdb := utils.NewRedisClient(redis_url)
 
 	client, err := ethclient.Dial(full_node_url)

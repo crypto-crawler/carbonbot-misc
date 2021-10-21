@@ -43,7 +43,6 @@ ENV RUST_LOG "warn"
 ENV RUST_BACKTRACE 1
 
 VOLUME [ "/data" ]
-ENV DATA_DIR "/data"
 
 USER node:node
 ENV USER node

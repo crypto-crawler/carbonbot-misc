@@ -67,6 +67,11 @@ func main() {
 	ctx := context.Background()
 
 	data_dir := os.Getenv("DATA_DIR")
+	redis_url := os.Getenv("REDIS_URL")
+	if len(data_dir) == 0 && len(redis_url) == 0 {
+		log.Fatal("Both DATA_DIR and REDIS_URL are empty")
+	}
+
 	var rf *utils.RollingFile
 	if len(data_dir) == 0 {
 		log.Println("The DATA_DIR environment variable is empty")
@@ -75,13 +80,14 @@ func main() {
 		rf = utils.NewRollingFile(data_dir, "ftx.markets")
 	}
 
-	redis_url := os.Getenv("REDIS_URL")
+	var publisher *pubsub.Publisher
 	if len(redis_url) == 0 {
+		publisher = nil
 		log.Println("The REDIS_URL environment variable is empty")
 	} else {
 		utils.WaitRedis(ctx, redis_url)
+		publisher = pubsub.NewPublisher(ctx, redis_url)
 	}
-	publisher := pubsub.NewPublisher(ctx, redis_url)
 
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
@@ -95,10 +101,16 @@ func main() {
 			}
 			json_bytes, _ := json.Marshal(currency_price)
 
-			publisher.Publish(config.REDIS_TOPIC_CURRENCY_PRICE_CHANNEL, string(json_bytes))
+			if publisher != nil {
+				publisher.Publish(config.REDIS_TOPIC_CURRENCY_PRICE_CHANNEL, string(json_bytes))
+			}
 		}
 	}
 
-	publisher.Close()
-	rf.Close()
+	if rf != nil {
+		rf.Close()
+	}
+	if publisher != nil {
+		publisher.Close()
+	}
 }

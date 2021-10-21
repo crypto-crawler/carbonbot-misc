@@ -56,6 +56,11 @@ func main() {
 	ctx := context.Background()
 
 	data_dir := os.Getenv("DATA_DIR")
+	redis_url := os.Getenv("REDIS_URL")
+	if len(data_dir) == 0 && len(redis_url) == 0 {
+		log.Fatal("Both DATA_DIR and REDIS_URL are empty")
+	}
+
 	var rf *utils.RollingFile
 	if len(data_dir) == 0 {
 		log.Println("The DATA_DIR environment variable is empty")
@@ -64,23 +69,29 @@ func main() {
 		rf = utils.NewRollingFile(data_dir, "cmc.global_metrics")
 	}
 
-	redis_url := os.Getenv("REDIS_URL")
+	var publisher *pubsub.Publisher
 	if len(redis_url) == 0 {
+		publisher = nil
 		log.Println("The REDIS_URL environment variable is empty")
 	} else {
 		utils.WaitRedis(ctx, redis_url)
+		publisher = pubsub.NewPublisher(ctx, redis_url)
 	}
-
-	publisher := pubsub.NewPublisher(ctx, redis_url)
 
 	ticker := time.NewTicker(10 * time.Minute) // crawl every 10 minutes
 	defer ticker.Stop()
 
 	for range ticker.C {
 		metrics := fetch_cmc_global_metrics(rf)
-		publisher.Publish(config.REDIS_TOPIC_CMC_GLOBAL_METRICS, string(metrics))
+		if publisher != nil {
+			publisher.Publish(config.REDIS_TOPIC_CMC_GLOBAL_METRICS, string(metrics))
+		}
 	}
 
-	rf.Close()
-	publisher.Close()
+	if rf != nil {
+		rf.Close()
+	}
+	if publisher != nil {
+		publisher.Close()
+	}
 }
