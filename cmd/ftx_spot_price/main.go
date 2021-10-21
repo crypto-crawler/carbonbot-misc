@@ -53,7 +53,7 @@ func fetchFtxMarkets(rf *utils.RollingFile) map[string]float64 {
 			arr := strings.Split(string(name), "/")
 			base := arr[0]
 			quote := arr[1]
-			if quote == "USD" || quote == "USDT" {
+			if quote == "USD" || quote == "USDT" || quote == "USDC" || quote == "BUSD" {
 				price, _, _, _ := jsonparser.Get(element, "price")
 				price_float, _ := strconv.ParseFloat(string(price), 64)
 				mapping[base] = price_float
