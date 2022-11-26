@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/buger/jsonparser"
@@ -42,7 +43,7 @@ func fetch_gas_price(rf *utils.RollingFile) *GasPriceMsg {
 		return nil
 	}
 	if rf != nil {
-		rf.Write(string(body) + "\n")
+		rf.Write(strings.TrimSpace(string(body)) + "\n")
 	}
 
 	data, _, _, err := jsonparser.Get(body, "data")

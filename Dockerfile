@@ -36,13 +36,14 @@ RUN ARCH="$(dpkg --print-architecture)" && \
     printf "user: node\ngroup: node\n" > /etc/fixuid/config.yml
 
 COPY --chown=node:node ./conf/rclone.conf /home/node/.config/rclone/rclone.conf
-COPY --chown=node:node ./conf/pm2.config.js /home/node/pm2.config.js
+COPY --chown=node:node ./conf/pm2.misc.config.js /home/node/pm2.misc.config.js
 COPY ./conf/upload.sh /usr/local/bin/upload.sh
 
 ENV RUST_LOG "warn"
 ENV RUST_BACKTRACE 1
 
-VOLUME [ "/data" ]
+VOLUME [ "/carbonbot_data" ]
+ENV DATA_DIR /carbonbot_data
 
 USER node:node
 ENV USER node
@@ -50,4 +51,4 @@ WORKDIR /home/node
 
 ENTRYPOINT ["fixuid", "-q"]
 
-CMD [ "pm2-runtime", "start", "pm2.config.js" ]
+CMD [ "pm2-runtime", "start", "pm2.misc.config.js" ]

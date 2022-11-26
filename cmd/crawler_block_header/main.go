@@ -23,9 +23,6 @@ import (
 // return ETH number
 func fetchBlockReward(blockNumber int64) float64 {
 	etherscan_api_key := os.Getenv("ETHERSCAN_API_KEY")
-	if len(etherscan_api_key) == 0 {
-		log.Fatal("The ETHERSCAN_API_KEY environment variable is empty")
-	}
 	url := fmt.Sprintf("https://api.etherscan.io/api?module=block&action=getblockreward&blockno=%d&apikey=%s", blockNumber, etherscan_api_key)
 
 	for i := 0; i < 3; i++ {
@@ -54,6 +51,9 @@ func main() {
 	full_node_url := os.Getenv("FULL_NODE_URL")
 	if len(full_node_url) == 0 {
 		log.Fatal("The FULL_NODE_URL environment variable is empty")
+	}
+	if len(os.Getenv("ETHERSCAN_API_KEY")) == 0 {
+		log.Fatal("The ETHERSCAN_API_KEY environment variable is empty")
 	}
 
 	data_dir := os.Getenv("DATA_DIR")

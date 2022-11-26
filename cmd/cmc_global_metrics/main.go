@@ -20,9 +20,6 @@ func fetch_cmc_global_metrics(rf *utils.RollingFile) string {
 	req, _ := http.NewRequest("GET", url, nil)
 
 	cmc_api_key := os.Getenv("CMC_API_KEY")
-	if len(cmc_api_key) == 0 {
-		log.Fatal("The CMC_API_KEY environment variable is empty")
-	}
 	req.Header.Set("X-CMC_PRO_API_KEY", cmc_api_key)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -54,6 +51,10 @@ func fetch_cmc_global_metrics(rf *utils.RollingFile) string {
 
 func main() {
 	ctx := context.Background()
+
+	if len(os.Getenv("CMC_API_KEY")) == 0 {
+		log.Fatal("The CMC_API_KEY environment variable is empty")
+	}
 
 	data_dir := os.Getenv("DATA_DIR")
 	redis_url := os.Getenv("REDIS_URL")
