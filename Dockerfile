@@ -7,9 +7,7 @@ RUN go build -o cmc_global_metrics cmd/cmc_global_metrics/main.go \
  && go build -o cmc_price_crawler cmd/cmc_price_crawler/main.go \
  && go build -o crawler_block_header cmd/crawler_block_header/main.go \
  && go build -o crawler_gas_price cmd/crawler_gas_price/main.go \
- && go build -o mark_price cmd/mark_price/main.go \
- && go build -o ftx_spot_price cmd/ftx_spot_price/main.go
-
+ && go build -o mark_price cmd/mark_price/main.go
 
 FROM node:bullseye-slim
 
@@ -18,7 +16,6 @@ COPY --from=go_builder /project/cmc_price_crawler /usr/local/bin/
 COPY --from=go_builder /project/crawler_block_header /usr/local/bin/
 COPY --from=go_builder /project/crawler_gas_price /usr/local/bin/
 COPY --from=go_builder /project/mark_price /usr/local/bin/
-COPY --from=go_builder /project/ftx_spot_price /usr/local/bin/
 
 # procps provides the ps command, which is needed by pm2
 RUN apt-get -qy update && apt-get -qy --no-install-recommends install \

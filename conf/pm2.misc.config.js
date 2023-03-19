@@ -46,15 +46,6 @@ apps.push({
 });
 
 apps.push({
-  name: "ftx_spot_price",
-  script: "ftx_spot_price",
-  exec_interpreter: "none",
-  exec_mode: "fork",
-  instances: 1,
-  restart_delay: 5000, // 5 seconds
-});
-
-apps.push({
   name: "upload",
   script: "/usr/local/bin/upload.sh",
   exec_interpreter: "bash",
