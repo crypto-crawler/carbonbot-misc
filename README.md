@@ -10,9 +10,9 @@ docker run -d --name carbonbot-misc --restart always \
   -e ETHERSCAN_API_KEY=YOUR_API_KEY \
   -e CMC_API_KEY=YOUR_API_KEY \
   -e REDIS_URL="redis://172.17.0.1:6379" \
+  -e DEST_DIR=/dest_dir \
   -v "/your/local/path":/carbonbot_data \
   -v "/your/NFS/path":/dest_dir \
-  -e DEST_DIR=/dest_dir \
   -u "$(id -u):$(id -g)" soulmachine/carbonbot:misc
 ```
 
